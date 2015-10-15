@@ -19,6 +19,8 @@ public class TTRMain {
 		
 		/* Setup the scene, and get the game started */
 		TTRGamePlayScene scene = new TTRGamePlayScene("Ticket To Ride", "woodBacking.jpg", myGame, player1, player2);
+		scene.setScaleX(0.7);
+		scene.setScaleY(0.7);
 		myGame.setCurrentScene(scene);
 		player1.setScene(scene);
 		player2.setScene(scene);

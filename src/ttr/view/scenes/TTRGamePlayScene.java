@@ -88,6 +88,7 @@ public class TTRGamePlayScene extends GameScene implements IEventListener{
 		routeSelector = new RouteSelectionPanel();
 		routeSelector.setX(destTicketDeck.getX() + destTicketDeck.getScaledWidth() + 100);
 		routeSelector.setY(destTicketDeck.getY() + 20);
+		routeSelector.setLocation(new Point(destTicketDeck.getX(), destTicketDeck.getY() - 280));
 		this.addChild(routeSelector);
 		//routeSelector.init();
 		
@@ -96,7 +97,7 @@ public class TTRGamePlayScene extends GameScene implements IEventListener{
 		gameLog.setX(480);
 		gameLog.setY(390);
 		this.addChild(gameLog);
-		
+		gameLog.setLocation(new Point(destTicketDeck.getX(), destTicketDeck.getY()));
 		initializeGame();
 	}
 	
