@@ -4,6 +4,7 @@ import ttr.model.player.HumanPlayer;
 import ttr.model.player.Player;
 import ttr.model.player.StupidPlayer;
 import ttr.view.scenes.TTRGamePlayScene;
+import ttr.model.player.ThomasTheTankEngine;
 
 public class TTRMain {
 
@@ -15,7 +16,8 @@ public class TTRMain {
 		
 		/* Initialize two players. This can be any combination of human players or AI players */
 		Player player1 = new HumanPlayer("Human Player");
-		Player player2 = new StupidPlayer("Stupid Player");
+		Player player2 = new ThomasTheTankEngine("Little Tommy");
+		
 		
 		/* Setup the scene, and get the game started */
 		TTRGamePlayScene scene = new TTRGamePlayScene("Ticket To Ride", "woodBacking.jpg", myGame, player1, player2);
