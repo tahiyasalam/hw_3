@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import ttr.model.destinationCards.*;
 import java.util.HashMap;
 
-import ttr.model.destinationCards.Destination;
-import ttr.model.destinationCards.Route;
 import ttr.model.trainCards.TrainCardColor;
 import ttr.model.player.HumanPlayer;
 
@@ -24,8 +22,8 @@ public class ThomasTheTankEngine extends Player {
 //	public void makeMove() {
 //		// TODO Auto-generated method stub
 //		//use dijkstras on both destination cards
-//		//tabulate cards needed
-//		//pick cards until card values are fulfilled
+//		//tabulate colors needed
+//		//pick colors until card values are fulfilled
 //		//when card value met, 
 //		//check for critical points
 //		//manhattan distance + longest piece
@@ -38,16 +36,36 @@ public class ThomasTheTankEngine extends Player {
 	@Override
 	public void makeMove(){
 		
-		/* Always draw train cards (0 means we are drawing from the pile, not from the face-up cards) */
-		super.drawTrainCard(0);
+//		/* Always draw train cards (0 means we are drawing from the pile, not from the face-up cards) */
+//		super.drawTrainCard(0);
+//		
+//		/* This call would allow player to draw destination tickets*/
+//		super.drawDestinationTickets();
+//		
+//		/* Something like this will allow an AI to attempt to buy a route on the board. The first param is the route they wish */
+//		/* ...to buy, the second param is the card color they wish to pay for the route with (some routes have options here) */
+//		super.claimRoute(new Route(Destination.Atlanta,  Destination.Miami, 6, TrainCardColor.blue), TrainCardColor.blue);
+//		
+		ArrayList<DestinationTicket> destTickets = this.getDestinationTickets();
+		ArrayList<Route> allRoutes = new ArrayList<Route>();
 		
-		/* This call would allow player to draw destination tickets*/
-		super.drawDestinationTickets();
+		//inserts all of the routes from destination tickets into allRoutes
+		for(int i = 0; i < destTickets.size(); i++) {
+			ArrayList<Destination> dest = shortestPathcost(destTickets.get(i).getTo(), destTickets.get(i).getFrom()); //gets to and from values from destination tickets and calculates shortest path
+			for (int j = 0; j < dest.size()-1; j++ ) {
+				ArrayList <Route> routes = Routes.getInstance().getRoutes(dest.get(j), dest.get(j+1)); //gets the routes from list of destinations
+				for (int k = 0; k < routes.size(); k++)
+					if (!allRoutes.contains(routes.get(k)) || routes.get(k).getOwner() == null)
+						allRoutes.add(routes.get(k)); //adds all the routes from 
+			}
+		}
 		
-		/* Something like this will allow an AI to attempt to buy a route on the board. The first param is the route they wish */
-		/* ...to buy, the second param is the card color they wish to pay for the route with (some routes have options here) */
-		super.claimRoute(new Route(Destination.Atlanta,  Destination.Miami, 6, TrainCardColor.blue), TrainCardColor.blue);
-		this.itinerary();
+		//checks to see if enough cars to buy a route and if so, buys route of given color
+		for(int i = 0; i < allRoutes.size(); i++) {
+			if(getNumTrainCardsByColor(allRoutes.get(i).getColor()) >= allRoutes.get(i).getCost()) {
+				super.claimRoute(allRoutes.get(i), allRoutes.get(i).getColor());
+			}
+		}
 		
 		
 		/* NOTE: This is just an example, a player cannot actually do all three of these things in one turn. The simulator won't allow it */
