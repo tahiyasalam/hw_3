@@ -83,7 +83,7 @@ public class ThomasTheTankEngine extends Player {
 			for(int i = 0; i < allRoutes.size(); i++) {
 				if(getNumTrainCardsByColor(allRoutes.get(i).getColor()) >= allRoutes.get(i).getCost()) {
 					super.claimRoute(allRoutes.get(i), allRoutes.get(i).getColor());
-					System.out.println(allRoutes.get(i).getColor());
+					//System.out.println(allRoutes.get(i).getColor());
 					claimed = true;
 				}
 			}
@@ -92,7 +92,7 @@ public class ThomasTheTankEngine extends Player {
 		//always pick rainbow card if available
 		if(!claimed) {
 			for (int s = 0; s < getFaceUpCards().size(); s++ ) {
-				System.out.println(getFaceUpCards().get(s).getColor().toString());
+				//System.out.println(getFaceUpCards().get(s).getColor().toString());
 				if (getFaceUpCards().get(s).getColor().toString().equals("rainbow")) {
 					super.drawTrainCard(s+1);
 					claimed = true;
