@@ -92,22 +92,26 @@ public class ThomasTheTankEngine extends Player {
 		//always pick rainbow card if available
 		if(!claimed) {
 			for (int s = 0; s < getFaceUpCards().size(); s++ ) {
-				if (getFaceUpCards().get(s).getColor().equals(TrainCardColor.rainbow)) {
-					super.drawTrainCard(s);
+				System.out.println(getFaceUpCards().get(s).getColor().toString());
+				if (getFaceUpCards().get(s).getColor().toString().equals("rainbow")) {
+					super.drawTrainCard(s+1);
 					claimed = true;
 				}
 			}
 		}
 
 		//draws card that will lead to path being completed
-		int difference = 3;
+		int difference = 6;
 		if(!claimed) {
 			for(int i = 1; i < difference; i++) {
 				for(int j = 0; j < allRoutes.size(); j++) //checks difference between cost of route and number of cards needed to complete route & checks if card needed in face up cards
-					if( (allRoutes.get(j).getCost() - getNumTrainCardsByColor(allRoutes.get(j).getColor()) == i) && getFaceUpCards().contains(allRoutes.get(j).getColor())) {
-						super.drawTrainCard(getFaceUpCards().indexOf(allRoutes.get(j).getColor()));
-						claimed = true;
+					for(int s = 0; s < getFaceUpCards().size(); s++){
+						if( (allRoutes.get(j).getCost() - getNumTrainCardsByColor(allRoutes.get(j).getColor()) == i) && getFaceUpCards().get(s).getColor().equals(allRoutes.get(j).getColor())) {
+							super.drawTrainCard(s+1);
+							claimed = true;
+						}	
 					}
+					
 			}
 		}
 
