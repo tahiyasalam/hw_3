@@ -16,7 +16,7 @@ public class TTRMain {
 		
 		/* Initialize two players. This can be any combination of human players or AI players */
 		Player player1 = new HumanPlayer("Human Player");
-		Player player2 = new ThomasTheTankEngine("Little Tommy");
+		Player player2 = new ThomasTheTankEngine("Lil' Tommy");
 		
 		
 		/* Setup the scene, and get the game started */

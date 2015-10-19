@@ -55,19 +55,24 @@ public class ThomasTheTankEngine extends Player {
 			for (int j = 0; j < dest.size()-1; j++ ) {
 				ArrayList <Route> routes = Routes.getInstance().getRoutes(dest.get(j), dest.get(j+1)); //gets the routes from list of destinations
 				for (int k = 0; k < routes.size(); k++)
-					if (!allRoutes.contains(routes.get(k)) || routes.get(k).getOwner() == null)
+					if (!allRoutes.contains(routes.get(k)) && routes.get(k).getOwner() == null)
 						allRoutes.add(routes.get(k)); //adds all the routes from 
 			}
 		}
 		
 		//checks to see if enough cars to buy a route and if so, buys route of given color
+		boolean claimed = false;
 		for(int i = 0; i < allRoutes.size(); i++) {
 			if(getNumTrainCardsByColor(allRoutes.get(i).getColor()) >= allRoutes.get(i).getCost()) {
 				super.claimRoute(allRoutes.get(i), allRoutes.get(i).getColor());
+				System.out.println(allRoutes.get(i).getColor());
+				claimed = true;
 			}
 		}
-		
-		
+		if(!claimed){
+			super.drawTrainCard(0);
+			claimed = false;
+		}
 		/* NOTE: This is just an example, a player cannot actually do all three of these things in one turn. The simulator won't allow it */
 
 	}
