@@ -73,7 +73,6 @@ public class ThomasTheTankEngine extends Player {
 			if(getNumTrainCardsByColor(allRoutes.get(i).getColor()) >= allRoutes.get(i).getCost()) {
 				if(criticalPoints().contains(allRoutes.get(i).getDest1().toString()) || criticalPoints().contains(allRoutes.get(i).getDest2().toString())) {
 					super.claimRoute(allRoutes.get(i), allRoutes.get(i).getColor());
-					System.out.println(allRoutes.get(i).getColor());
 					claimed = true;
 				}
 			}
