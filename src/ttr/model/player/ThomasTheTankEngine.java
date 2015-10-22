@@ -59,7 +59,7 @@ public class ThomasTheTankEngine extends Player {
 		int initialSize = destTickets.size();
 		
 		//Decide whether we will draw more destination cards
-		if(finishedARoute && initialSize < 5){
+		if(finishedARoute && initialSize < 3){
 			//do we still have a lot of trains
 			
 			//do we have a lot of cards in our deck that we could use???? O.o
