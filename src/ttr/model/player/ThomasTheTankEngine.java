@@ -12,7 +12,7 @@ import ttr.model.player.HumanPlayer;
 
 
 public class ThomasTheTankEngine extends Player {
-
+	boolean finishedARoute = false;
 	public ThomasTheTankEngine(String name) {
 		super(name);
 	}
@@ -55,7 +55,22 @@ public class ThomasTheTankEngine extends Player {
 		//		
 		ArrayList<DestinationTicket> destTickets = this.getDestinationTickets();
 		ArrayList<Route> allRoutes = new ArrayList<Route>();
-
+		
+		int initialSize = destTickets.size();
+		
+		//Decide whether we will draw more destination cards
+		if(finishedARoute && initialSize < 5){
+			//do we still have a lot of trains
+			
+			//do we have a lot of cards in our deck that we could use???? O.o
+			
+			finishedARoute = false;
+			super.drawDestinationTickets();
+		}
+		
+		
+		
+		
 		//inserts all of the routes from destination tickets into allRoutes
 		for(int i = 0; i < destTickets.size(); i++) {
 			ArrayList<Destination> dest = shortestPathcost(destTickets.get(i).getTo(), destTickets.get(i).getFrom()); //gets to and from values from destination tickets and calculates shortest path
@@ -89,6 +104,11 @@ public class ThomasTheTankEngine extends Player {
 			}
 		}
 
+		int newSize = this.getDestinationTickets().size();
+		if(newSize != initialSize){
+			this.finishedARoute = true;
+		}
+		
 		//always pick rainbow card if available
 		if(!claimed) {
 			for (int s = 0; s < getFaceUpCards().size(); s++ ) {
@@ -193,7 +213,11 @@ public class ThomasTheTankEngine extends Player {
 				/* get route between next and neighbor and see if better than neighbor's value */
 				ArrayList<Route> routesToNeighbor = Routes.getInstance().getRoutes(next, neighbor);
 				for(Route routeToNeighbor : routesToNeighbor){
-					int newCost = closedList.get(next) + routeToNeighbor.getCost();
+					int newCost;
+					if(this.getPlayerClaimedRoutes().contains(routeToNeighbor)){
+						newCost = closedList.get(next);
+					}
+					else newCost = closedList.get(next) + routeToNeighbor.getCost();
 
 					if(Routes.getInstance().ownsRoute(this, routeToNeighbor) | !Routes.getInstance().isRouteClaimed(routeToNeighbor)){	
 						if(openList.containsKey(neighbor)){	
