@@ -57,12 +57,19 @@ public class ThomasTheTankEngine extends Player {
 		ArrayList<Route> allRoutes = new ArrayList<Route>();
 		
 		int initialSize = destTickets.size();
+		int costOfTickets = 0;
+		
+		for (int i = 0; i < destTickets.size(); i++) { //sum value of all destination tickets
+			costOfTickets += destTickets.get(i).getValue();
+		}
 		
 		//Decide whether we will draw more destination cards
-		if(finishedARoute && initialSize < 3){
+		if(finishedARoute && initialSize < 3 && costOfTickets < this.getNumTrainPieces()){
 			//do we still have a lot of trains
 			
 			//do we have a lot of cards in our deck that we could use???? O.o
+			
+			//do we have enough train pieces to finish our routes???? O__o
 			
 			finishedARoute = false;
 			super.drawDestinationTickets();
@@ -103,6 +110,7 @@ public class ThomasTheTankEngine extends Player {
 				}
 			}
 		}
+		
 
 		int newSize = this.getDestinationTickets().size();
 		if(newSize != initialSize){

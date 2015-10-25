@@ -15,7 +15,7 @@ public class TTRMain {
 		myGame.setFramesPerSecond(60);
 		
 		/* Initialize two players. This can be any combination of human players or AI players */
-		Player player1 = new HumanPlayer("Human Player");
+		Player player1 = new StupidPlayer("Lil Dum Dum Player");
 		Player player2 = new ThomasTheTankEngine("Lil' Tommy");
 		
 		
