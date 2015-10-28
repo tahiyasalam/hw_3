@@ -363,21 +363,48 @@ public class ManifestDestinyPlayer extends Player {
 			return 0;
 	}
 	
-	public double value(int sprime) {
-		
-		return 0;
-	}
+	//map specific states to values <state, value>
+	HashMap<Integer, Double> value = new HashMap<Integer, Double>();
 	
+	//call this function before beginning to quality checking
+	public void initValue(HashMap<Integer, Integer> val) {
+		val.put(0, 10);
+		val.put(1, 10);
+		val.put(2, 10);
+		val.put(3, 10);
+	}
+
+	public String value(int s) {
+		String max = "";
+		double currMax = 0;
+		if (quality(s, "a1") > quality(s, "a2")) { // find the max between taking action 1 and action 2 
+			max = "a1";
+			currMax = quality(s, "a1");
+		}
+		else {
+			max = "a2";
+			currMax = quality(s, "a2");
+		}
+		if(quality(s, "a3") > quality(s, max)) {//find the max between previous max and taking action 3
+			max = "a3";
+			currMax = quality(s, "a3");
+		}
+		
+		value.put(s, currMax); //replace value with the update max for given state
+		
+		return max;
+	}
+
 	public double quality(int s, String a) {
 
 		double q = 0;
 		
-		for(int sp = 0; sp < 4; sp ++) {
-			q += probability(s, a, sp) * (reward(s, a, sp) + gamma*value(sp));
-			
+		for(int sp = 0; sp < 4; sp ++) {				
+			q += probability(s, a, sp) * (reward(s, a, sp) + gamma*value.get(sp)); //calculate the Q based on the weight of the rewards and values
 		}
-		
 		return q;
 	}
+
+	
 	
 }
