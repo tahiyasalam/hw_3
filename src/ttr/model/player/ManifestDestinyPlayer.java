@@ -3,6 +3,8 @@ package ttr.model.player;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.omg.Messaging.SyncScopeHelper;
+
 import ttr.model.destinationCards.Destination;
 import ttr.model.destinationCards.DestinationTicket;
 import ttr.model.destinationCards.Route;
@@ -360,32 +362,22 @@ public class ManifestDestinyPlayer extends Player {
 		else 
 			return 0;
 	}
+	
 	public double value(int sprime) {
 		
 		return 0;
 	}
 	
 	public double quality(int s, String a) {
-		double action[][] = new double[4][4];
-		if(a.equals("a1")) {
-			action = prob_a1;
-		}
-		else if(a.equals("a2_k")) {
-			action = prob_a2_k;
-		}
-		else if(a.equals("a2_r")) {
-			action = prob_a2_r;
-		}
-		else if(a.equals("a3")) {
-			action = prob_a3;
-		}
+
 		double q = 0;
 		
 		for(int sp = 0; sp < 4; sp ++) {
-			q += probability(s, a, sp) * (reward(s, a, sp) + gamma*0);
+			q += probability(s, a, sp) * (reward(s, a, sp) + gamma*value(sp));
 			
 		}
-		return 0;
+		
+		return q;
 	}
 	
 }
