@@ -3,8 +3,6 @@ package ttr.model.player;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.omg.Messaging.SyncScopeHelper;
-
 import ttr.model.destinationCards.Destination;
 import ttr.model.destinationCards.DestinationTicket;
 import ttr.model.destinationCards.Route;
@@ -16,10 +14,12 @@ public class ManifestDestinyPlayer extends Player {
 
 	public ManifestDestinyPlayer(String name) {
 		super(name);
+		MarkovDecisionProcess();
 	}
 
 	public ManifestDestinyPlayer() {
 		super("ManifestDestinyPlayer");
+		MarkovDecisionProcess();
 	}
 
 	//STATES:					ACTIONS:
@@ -88,6 +88,121 @@ public class ManifestDestinyPlayer extends Player {
 	};
 
 	static double gamma = 0.5;
+	
+	//map specific states to values <state, value>
+	static HashMap<Integer, Double> value = new HashMap<Integer, Double>();
+	static HashMap<Integer, String> pi = new HashMap<Integer, String>();
+
+
+	public double probability(int s, String a, int s_prime) {
+
+		//STATES:					ACTIONS:
+		//0 = enough cards 			a1 = claim routes
+		//1 = few cards				a2_r = pick random card 
+		//2 = many good				a2_k = pick known card 
+		//3 = many bad				a3 = pick destination
+
+		if(a.equals("a1")) {
+			return prob_a1[s][s_prime];
+		}
+
+		else if(a.equals("a2_r")) {
+			return prob_a2_r[s][s_prime];
+		}
+
+		else if(a.equals("a2_k")) {
+			return prob_a2_k[s][s_prime];
+		}
+
+		else if(a.equals("a3")) {
+			return prob_a3[s][s_prime];
+		}
+		else 
+			return 0;
+	}
+
+	public double reward(int s, String a, int s_prime) {
+
+		//STATES:					ACTIONS:
+		//0 = enough cards 			a1 = claim routes
+		//1 = few cards				a2_r = pick random card 
+		//2 = many good				a2_k = pick known card 
+		//3 = many bad				a3 = pick destination
+
+		if(a.equals("a1")) {
+			return rew_a1[s][s_prime];
+		}
+
+		else if(a.equals("a2_r")) {
+			return rew_a2_r[s][s_prime];
+		}
+
+		else if(a.equals("a2_k")) {
+			return rew_a2_k[s][s_prime];
+		}
+
+		else if(a.equals("a3")) {
+			return rew_a3[s][s_prime];
+		}
+		else 
+			return 0;
+	}
+
+	//call this function before beginning to quality checking
+	public void initValue(HashMap<Integer, Double> value2) {
+		value2.put(0, 10.0);
+		value2.put(1, 10.0);
+		value2.put(2, 10.0);
+		value2.put(3, 10.0);
+	}
+
+	public String value(int s) {
+		String max = "";
+		double currMax = 0;
+		if (quality(s, "a1") > quality(s, "a2_r")) { // find the max between taking action 1 and action 2 
+			max = "a1";
+			currMax = quality(s, "a1");
+		}
+		else {
+			max = "a2_r";
+			currMax = quality(s, "a2_r");
+		}
+
+		if(quality(s, "a2_k") > quality(s, max)) {//find the max between previous max and taking action 3
+			max = "a2_k";
+			currMax = quality(s, "a2_k");
+		}
+
+		if(quality(s, "a3") > quality(s, max)) {//find the max between previous max and taking action 3
+			max = "a3";
+			currMax = quality(s, "a3");
+		}
+
+		value.put(s, currMax); //replace value with the update max for given state
+		pi.put(s, max); //keep track of associated action
+
+		return max; //returns maximum state associated with new current maximum
+	}
+
+	public double quality(int s, String a) {
+
+		double q = 0;
+
+		for(int sp = 0; sp < 4; sp ++) {				
+			q += probability(s, a, sp) * (reward(s, a, sp) + gamma*value.get(sp)); //calculate the Q based on the weight of the rewards and values
+		}
+		return q;
+	}
+
+	String []actions = {"a1", "a2_r", "a2_k", "a3"};
+
+	public void MarkovDecisionProcess() {
+		this.initValue(value);
+		for (int i = 0; i < 50; i++) {
+			for (int state = 0; state < 4; state++)
+				value(state);
+		}	
+	}
 
 	/**
 	 * MUST override the makeMove() method and implement it.
@@ -129,7 +244,6 @@ public class ManifestDestinyPlayer extends Player {
 			if(getNumTrainCardsByColor(allRoutes.get(i).getColor()) >= allRoutes.get(i).getCost()) {
 				enough = true;
 				s = 0;
-				break;
 			}
 		}
 
@@ -153,32 +267,29 @@ public class ManifestDestinyPlayer extends Player {
 				sum += cardColors.get(color);
 		}
 
-		//checks to see if many good
-		if(this.getHand().size() > 10) {
-			if(sum > 10) {
-				many_good = true;
-				s = 2;
+		if(!enough) {
+			//checks to see if many good
+			if(this.getHand().size() > 10) {
+				if(sum > 10) {
+					many_good = true;
+					s = 2;
+				}
+				else {
+					many_bad = true;
+					s = 3;
+				}
 			}
-			else {
-				many_bad = true;
-				s = 3;
+
+			//checks to see if few cards
+			if(this.getHand().size() < 11) {
+				few = true;
+				s = 1;
 			}
+
+			if(!enough && !many_good && !many_bad)
+				few = true;
+			
 		}
-
-		//checks to see if few cards
-		if(this.getHand().size() < 11) {
-			few = true;
-			s = 1;
-		}
-
-		if(!enough && !many_good && !many_bad)
-			few = true;
-
-
-		//passing through to prob/reward function ---> just an example
-		int s_prime = 0;
-		probability(s, "a1", s_prime);
-		reward(s, "a1", s_prime);
 
 		int future_index = 0;
 
@@ -196,19 +307,35 @@ public class ManifestDestinyPlayer extends Player {
 				}
 			}
 		}
+	
+ 		String action = pi.get(s);
+		if (action.equals("a1")) { //policy says to claim route
+			for(int i = 0; i < allRoutes.size(); i++) {
+				if(getNumTrainCardsByColor(allRoutes.get(i).getColor()) >= allRoutes.get(i).getCost()) {
+					super.claimRoute(allRoutes.get(i), allRoutes.get(i).getColor());
+				}
+			}	
+		}
+
+		else if (action.equals("a2_r")) {
+			super.drawTrainCard(0);
+		}
+
+		else if (action.equals("a2_k")) {
+			super.drawTrainCard(future_index);
+		}
+
+		else if (action.equals("a3")) {
+			//final check for whether we will draw more destination cards
+			if(finishedARoute && initialSize < 3 && costOfTickets < this.getNumTrainPieces()){
+				super.drawDestinationTickets();
+			}
+		}
 
 		int newSize = this.getDestinationTickets().size();
 		if(newSize != initialSize){
 			this.finishedARoute = true;
 		}
-
-		//final check for whether we will draw more destination cards
-		if(finishedARoute && initialSize < 3 && costOfTickets < this.getNumTrainPieces()){
-			super.drawDestinationTickets();
-		}
-
-
-
 	}
 
 	public ArrayList<String> criticalPoints () {
@@ -313,113 +440,6 @@ public class ManifestDestinyPlayer extends Player {
 		shortestPath.add(from); //list is reversed but we don't carrrre
 
 		return shortestPath;
-	}
-
-	public double probability(int s, String a, int s_prime) {
-
-		//STATES:					ACTIONS:
-		//0 = enough cards 			a1 = claim routes
-		//1 = few cards				a2_r = pick random card 
-		//2 = many good				a2_k = pick known card 
-		//3 = many bad				a3 = pick destination
-
-		if(a.equals("a1")) {
-			return prob_a1[s][s_prime];
-		}
-
-		else if(a.equals("a2_r")) {
-			return prob_a2_r[s][s_prime];
-		}
-
-		else if(a.equals("a2_k")) {
-			return prob_a2_k[s][s_prime];
-		}
-
-		else if(a.equals("a3")) {
-			return prob_a3[s][s_prime];
-		}
-		else 
-			return 0;
-	}
-
-	public double reward(int s, String a, int s_prime) {
-
-		//STATES:					ACTIONS:
-		//0 = enough cards 			a1 = claim routes
-		//1 = few cards				a2_r = pick random card 
-		//2 = many good				a2_k = pick known card 
-		//3 = many bad				a3 = pick destination
-
-		if(a.equals("a1")) {
-			return rew_a1[s][s_prime];
-		}
-
-		else if(a.equals("a2_r")) {
-			return rew_a2_r[s][s_prime];
-		}
-
-		else if(a.equals("a2_k")) {
-			return rew_a2_k[s][s_prime];
-		}
-
-		else if(a.equals("a3")) {
-			return rew_a3[s][s_prime];
-		}
-		else 
-			return 0;
-	}
-
-	//map specific states to values <state, value>
-	HashMap<Integer, Double> value = new HashMap<Integer, Double>();
-
-	//call this function before beginning to quality checking
-	public void initValue(HashMap<Integer, Double> value2) {
-		value2.put(0, 10.0);
-		value2.put(1, 10.0);
-		value2.put(2, 10.0);
-		value2.put(3, 10.0);
-	}
-
-	public String value(int s) {
-		String max = "";
-		double currMax = 0;
-		if (quality(s, "a1") > quality(s, "a2")) { // find the max between taking action 1 and action 2 
-			max = "a1";
-			currMax = quality(s, "a1");
-		}
-		else {
-			max = "a2";
-			currMax = quality(s, "a2");
-		}
-		if(quality(s, "a3") > quality(s, max)) {//find the max between previous max and taking action 3
-			max = "a3";
-			currMax = quality(s, "a3");
-		}
-
-		value.put(s, currMax); //replace value with the update max for given state
-
-		return max; //returns maximum state associated with new current maximum
-	}
-
-	public double quality(int s, String a) {
-
-		double q = 0;
-
-		for(int sp = 0; sp < 4; sp ++) {				
-			q += probability(s, a, sp) * (reward(s, a, sp) + gamma*value.get(sp)); //calculate the Q based on the weight of the rewards and values
-		}
-		return q;
-	}
-
-	String []actions = {"a1", "a2", "a3"};
-
-	public void MarkovDecisionProcess() {
-		this.initValue(value);
-
-		for (int i = 0; i < 50; i++) {
-			for (int state = 0; state < 4; state++)
-					value(state);
-		}
 	}
 
 
