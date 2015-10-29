@@ -28,60 +28,66 @@ public class ManifestDestinyPlayer extends Player {
 	//2 = many good				a2_k = pick known card 
 	//3 = many bad				a3 = pick destination
 
+	//STATES:					ACTIONS:
+	//0 = enough cards 			a1 = claim routes
+	//1 = few cards				a2_r = pick random card 
+	//2 = many good				a2_k = pick known card 
+	//3 = many bad				a3 = pick destination
+
 	//matrices for probabilities upon transition
-	double prob_a1[][] = new double[][]{
-		{0.1, 0, 0, 0},
-		{0.5, 1, 0, 0},
-		{0.2, 0, 0, 0},
-		{0.2, 0, 0, 0},
-	};
-	double prob_a2_r[][] = new double[][]{
-		{1, 0.1, 0.5, 0.02},
-		{0, 0.5, 0, 0},
-		{0, 0.2, 0.5, 0.2},
-		{0, 0.2, 0, 0.78},
-	};
-	double prob_a2_k[][] = new double[][]{
-		{1, 0.15, 0.6, 0.05},
-		{0, 0.5, 0, 0},
-		{0, 0.18, 0.4, 0.25},
-		{0, 0.17, 0, 0.7},
-	};
-	double prob_a3[][] = new double[][]{
-		{1, 0, 0.5, 0.33},
+	static double prob_a1[][] = new double[][]{
+		{0.1, 0.5, 0.2, 0.2},
 		{0, 1, 0, 0},
-		{0, 0, 0.5, 0.34},
-		{0, 0, 0, 0.33},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+	};
+	static double prob_a2_r[][] = new double[][]{
+		{1, 0, 0, 0},
+		{0.1, 0.5, 0.2, 0.2},
+		{0.5, 0, 0.5, 0},
+		{0.02, 0, 0.2, 0.78},
+	};
+	static double prob_a2_k[][] = new double[][]{
+		{1, 0, 0, 0},
+		{0.15, 0.5, 0.18, 0.17},
+		{0.6, 0, 0.4, 0},
+		{0.05, 0, 0.25, 0.7},
+	};
+	static double prob_a3[][] = new double[][]{
+		{1, 0, 0, 0},
+		{0, 1, 0, 0},
+		{0.5, 0, 0.5, 0},
+		{0.33, 0, 0.34, 0.33},
 	};
 
 
 	//matrices for rewards upon transition
-	double rew_a1[][] = new double[][]{
-		{10, 0, 0, 0},
-		{5, 3, 0, 0},
-		{8, 0, 0, 0},
+	static double rew_a1[][] = new double[][]{
+		{10, 5, 8, 3},
+		{0, 3, 0, 0},
+		{0, 0, 0, 0},
+		{0, 0, 0, 0},
+	};
+	static double rew_a2_r[][] = new double[][]{
 		{5, 0, 0, 0},
+		{7, 2, 5, 2},
+		{10, 0, 7, 0},
+		{8, 0, 6, 2},
 	};
-	double rew_a2_r[][] = new double[][]{
-		{5, 7, 10, 8},
-		{0, 2, 0, 0},
-		{0, 5, 7, 6},
-		{0, 2, 0, 2},
+	static double rew_a2_k[][] = new double[][]{
+		{5, 0, 0, 0},
+		{7, 2, 5, 2},
+		{10, 0, 7, 2},
+		{8, 0, 6, 2},
 	};
-	double rew_a2_k[][] = new double[][]{
-		{5, 7, 10, 8},
-		{0, 2, 0, 0},
-		{0, 5, 7, 6},
-		{0, 2, 2, 2},
-	};
-	double rew_a3[][] = new double[][]{
-		{3, 0, 5, 6},
+	static double rew_a3[][] = new double[][]{
+		{3, 0, 0, 0},
 		{0, -1, 0, 0},
-		{0, 0, 1, 2},
-		{0, 0, 0, -1},
+		{5, 0, 1, 0},
+		{6, 0, 2, -1},
 	};
 
-	double gamma = 0.5;
+	static double gamma = 0.5;
 
 	/**
 	 * MUST override the makeMove() method and implement it.
@@ -412,10 +418,7 @@ public class ManifestDestinyPlayer extends Player {
 
 		for (int i = 0; i < 50; i++) {
 			for (int state = 0; state < 4; state++)
-				for (String action : actions) {
-					quality(state, action);
 					value(state);
-				}
 		}
 	}
 

@@ -164,12 +164,9 @@ public class TestMDP {
 	static String []actions = {"a1", "a2", "a3"};
 
 	public static void MarkovDecisionProcess() {
-	//	initValue(value);
 		for (int i = 0; i < 50; i++) {
 			for (int state = 0; state < 4; state++)
-				for (String action : actions) {
 					value(state);
-				}
 		}
 	}
 	
