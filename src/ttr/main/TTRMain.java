@@ -6,6 +6,7 @@ import ttr.model.player.Player;
 import ttr.model.player.StupidPlayer;
 import ttr.view.scenes.TTRGamePlayScene;
 import ttr.model.player.ThomasTheTankEngine;
+import ttr.model.player.ThomasTheTankEngineDos;
 
 public class TTRMain {
 
@@ -16,8 +17,8 @@ public class TTRMain {
 		myGame.setFramesPerSecond(60);
 		
 		/* Initialize two players. This can be any combination of human players or AI players */
-		Player player1 = new ThomasTheTankEngine("Lil Tommy");
-		Player player2 = new ManifestDestinyPlayer("MDP");
+		Player player1 = new ThomasTheTankEngineDos("NonOriginal Tommy");
+		Player player2 = new ThomasTheTankEngine("Old Tommy");
 		
 		
 		/* Setup the scene, and get the game started */

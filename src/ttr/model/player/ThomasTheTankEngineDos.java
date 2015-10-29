@@ -1,8 +1,12 @@
 package ttr.model.player;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+
 import ttr.model.destinationCards.*;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import ttr.model.trainCards.TrainCardColor;
 import ttr.model.player.HumanPlayer;
@@ -10,15 +14,14 @@ import ttr.model.player.HumanPlayer;
 
 
 
-
-public class ThomasTheTankEngine extends Player {
+public class ThomasTheTankEngineDos extends Player {
 	boolean finishedARoute = false;
-	public ThomasTheTankEngine(String name) {
+	public ThomasTheTankEngineDos(String name) {
 		super(name);
 	}
 
-	public ThomasTheTankEngine() {
-		super("ThomasTheTankEngine");
+	public ThomasTheTankEngineDos() {
+		super("ThomasTheTankEngineDos");
 	}
 
 	/**
@@ -31,17 +34,29 @@ public class ThomasTheTankEngine extends Player {
 		
 		int initialSize = destTickets.size();
 		
-		
+		HashMap<Integer, ArrayList<Route> > sortedRoutes = new HashMap<Integer, ArrayList<Route> >();
+		HashMap<Integer, Integer> pathCosts = new HashMap<Integer, Integer>();
 		//inserts all of the routes from destination tickets into allRoutes
+		//and separates all routes into their paths
 		for(int i = 0; i < destTickets.size(); i++) {
+			int costofPath = destTickets.get(i).getValue();
+			ArrayList<Route> onePath = new ArrayList<Route>();
 			ArrayList<Destination> dest = shortestPathcost(destTickets.get(i).getTo(), destTickets.get(i).getFrom()); //gets to and from values from destination tickets and calculates shortest path
 			for (int j = 0; j < dest.size()-1; j++ ) {
 				ArrayList <Route> routes = Routes.getInstance().getRoutes(dest.get(j), dest.get(j+1)); //gets the routes from list of destinations
-				for (int k = 0; k < routes.size(); k++)
-					if (!allRoutes.contains(routes.get(k)) && routes.get(k).getOwner() == null)
-						allRoutes.add(routes.get(k)); //adds all the routes from 
+				for (int k = 0; k < routes.size(); k++){
+					if (!allRoutes.contains(routes.get(k)) && routes.get(k).getOwner() == null){
+						allRoutes.add(routes.get(k)); //adds all the routes from, to one giant list 
+						onePath.add(routes.get(k)); //adds the routes specific to this path
+					}
+				}
+			sortedRoutes.put(i, onePath); //add this path to sorted paths
+			pathCosts.put(i, costofPath); //save costs of each path in another hashmap
 			}
 		}
+		Map sortedMap = new TreeMap(new CostComparator(pathCosts));
+		sortedMap.putAll(pathCosts);
+	
 
 		boolean claimed = false;
 		//checks to see if enough cars to buy route depending on whether or not on critical points list
@@ -53,14 +68,17 @@ public class ThomasTheTankEngine extends Player {
 				}
 			}
 		}
-
+		
 		//checks to see if enough cars to buy a route and if so, buys route of given color
 		if(!claimed) {
-			for(int i = 0; i < allRoutes.size(); i++) {
-				if(getNumTrainCardsByColor(allRoutes.get(i).getColor()) >= allRoutes.get(i).getCost()) {
-					super.claimRoute(allRoutes.get(i), allRoutes.get(i).getColor());
-					//System.out.println(allRoutes.get(i).getColor());
-					claimed = true;
+			for(int i = 0; i < sortedMap.keySet().size(); i++) {
+				ArrayList<Route> path1 = sortedRoutes.get(sortedMap.keySet().toArray()[i]); //gets the prioritized path
+				for(int j = 0; j < path1.size(); j++){
+					if(getNumTrainCardsByColor(path1.get(j).getColor()) >= path1.get(j).getCost()) {
+						super.claimRoute(path1.get(j), path1.get(j).getColor());
+						//System.out.println(allRoutes.get(i).getColor());
+						claimed = true;
+				}
 				}
 			}
 		}
@@ -221,4 +239,20 @@ public class ThomasTheTankEngine extends Player {
 
 		return shortestPath;
 	}
+	
+class CostComparator implements Comparator<Integer>{
+	
+	HashMap<Integer, Integer> costs;
+	public CostComparator(HashMap<Integer, Integer> c){
+		this.costs = c;
+	}
+	public int compare(Integer x, Integer y){
+		if (costs.get(x) < costs.get(y)){
+			return -1;
+		}
+		else return 1;
+	}
+	
+}
+
 }
