@@ -13,7 +13,7 @@ import ttr.model.trainCards.TrainCardColor;
 
 public class ManifestDestinyPlayer extends Player {
 	boolean finishedARoute = false;
-	
+
 	public ManifestDestinyPlayer(String name) {
 		super(name);
 	}
@@ -21,7 +21,7 @@ public class ManifestDestinyPlayer extends Player {
 	public ManifestDestinyPlayer() {
 		super("ManifestDestinyPlayer");
 	}
-	
+
 	//STATES:					ACTIONS:
 	//0 = enough cards 			a1 = claim routes
 	//1 = few cards				a2_r = pick random card 
@@ -54,7 +54,7 @@ public class ManifestDestinyPlayer extends Player {
 		{0, 0, 0, 0.33},
 	};
 
-	
+
 	//matrices for rewards upon transition
 	double rew_a1[][] = new double[][]{
 		{10, 0, 0, 0},
@@ -80,7 +80,7 @@ public class ManifestDestinyPlayer extends Player {
 		{0, 0, 1, 2},
 		{0, 0, 0, -1},
 	};
-	
+
 	double gamma = 0.5;
 
 	/**
@@ -88,10 +88,10 @@ public class ManifestDestinyPlayer extends Player {
 	 * */
 	@Override
 	public void makeMove(){
-	
+
 		ArrayList<DestinationTicket> destTickets = this.getDestinationTickets();
 		ArrayList<Route> allRoutes = new ArrayList<Route>();
-		
+
 		//inserts all of the routes from destination tickets into allRoutes
 		for(int i = 0; i < destTickets.size(); i++) {
 			ArrayList<Destination> dest = shortestPathcost(destTickets.get(i).getTo(), destTickets.get(i).getFrom()); //gets to and from values from destination tickets and calculates shortest path
@@ -106,18 +106,18 @@ public class ManifestDestinyPlayer extends Player {
 		//this is used in deciding whether we need more destination tickets
 		int initialSize = destTickets.size();
 		int costOfTickets = 0;
-		
+
 		for (int i = 0; i < destTickets.size(); i++) { //sum value of all destination tickets
 			costOfTickets += destTickets.get(i).getValue();
 		}	
-		
+
 		//Determine what state we are in
 		boolean enough = false;
 		boolean few = false;
 		boolean many_good = false;
 		boolean many_bad = false;
 		int s = 1; //value of current state: default to few cards
-		
+
 		//checks to see if enough train cards to buy a route
 		for (int i = 0; i < allRoutes.size(); i++) {
 			if(getNumTrainCardsByColor(allRoutes.get(i).getColor()) >= allRoutes.get(i).getCost()) {
@@ -126,9 +126,9 @@ public class ManifestDestinyPlayer extends Player {
 				break;
 			}
 		}
-		
+
 		HashMap<TrainCardColor, Integer> cardColors = new HashMap<TrainCardColor, Integer>();
-		
+
 		//maps colors to number of cards needed
 		for (int j = 0; j < allRoutes.size(); j++) { 
 			if (cardColors.containsKey(allRoutes.get(j))) 
@@ -136,9 +136,9 @@ public class ManifestDestinyPlayer extends Player {
 			else
 				cardColors.put(allRoutes.get(j).getColor(), allRoutes.get(j).getCost());
 		}
-		
+
 		int sum = 0;
-		
+
 		//gets the exact number of train cards needed by color
 		for (TrainCardColor color : cardColors.keySet()) {
 			if (this.getNumTrainCardsByColor(color) <= cardColors.get(color))
@@ -146,7 +146,7 @@ public class ManifestDestinyPlayer extends Player {
 			else
 				sum += cardColors.get(color);
 		}
-		
+
 		//checks to see if many good
 		if(this.getHand().size() > 10) {
 			if(sum > 10) {
@@ -158,31 +158,31 @@ public class ManifestDestinyPlayer extends Player {
 				s = 3;
 			}
 		}
-			
+
 		//checks to see if few cards
 		if(this.getHand().size() < 11) {
 			few = true;
 			s = 1;
 		}
-		
+
 		if(!enough && !many_good && !many_bad)
 			few = true;
-		
-		
+
+
 		//passing through to prob/reward function ---> just an example
 		int s_prime = 0;
 		probability(s, "a1", s_prime);
 		reward(s, "a1", s_prime);
-	
+
 		int future_index = 0;
-		
+
 		//evaluates between picking rainbow card, designated color card, or from deck
 		for (int k = 0; k < getFaceUpCards().size(); k++ ) {
 			if (getFaceUpCards().get(k).getColor().toString().equals("rainbow")) {
 				future_index = k+1;
 			}
 		}
-		
+
 		if(future_index == 0) {
 			for( int k = 0; k < getFaceUpCards().size(); k++ ) {
 				if (cardColors.containsKey(getFaceUpCards().get(k).getColor())) {
@@ -190,19 +190,19 @@ public class ManifestDestinyPlayer extends Player {
 				}
 			}
 		}
-		
+
 		int newSize = this.getDestinationTickets().size();
 		if(newSize != initialSize){
 			this.finishedARoute = true;
 		}
-		
+
 		//final check for whether we will draw more destination cards
 		if(finishedARoute && initialSize < 3 && costOfTickets < this.getNumTrainPieces()){
 			super.drawDestinationTickets();
 		}
 
 
-		
+
 	}
 
 	public ArrayList<String> criticalPoints () {
@@ -308,70 +308,70 @@ public class ManifestDestinyPlayer extends Player {
 
 		return shortestPath;
 	}
-	
+
 	public double probability(int s, String a, int s_prime) {
-		
+
 		//STATES:					ACTIONS:
 		//0 = enough cards 			a1 = claim routes
 		//1 = few cards				a2_r = pick random card 
 		//2 = many good				a2_k = pick known card 
 		//3 = many bad				a3 = pick destination
-		
+
 		if(a.equals("a1")) {
 			return prob_a1[s][s_prime];
 		}
-		
+
 		else if(a.equals("a2_r")) {
 			return prob_a2_r[s][s_prime];
 		}
-		
+
 		else if(a.equals("a2_k")) {
 			return prob_a2_k[s][s_prime];
 		}
-		
+
 		else if(a.equals("a3")) {
 			return prob_a3[s][s_prime];
 		}
 		else 
 			return 0;
 	}
-	
+
 	public double reward(int s, String a, int s_prime) {
-		
+
 		//STATES:					ACTIONS:
 		//0 = enough cards 			a1 = claim routes
 		//1 = few cards				a2_r = pick random card 
 		//2 = many good				a2_k = pick known card 
 		//3 = many bad				a3 = pick destination
-		
+
 		if(a.equals("a1")) {
 			return rew_a1[s][s_prime];
 		}
-		
+
 		else if(a.equals("a2_r")) {
 			return rew_a2_r[s][s_prime];
 		}
-		
+
 		else if(a.equals("a2_k")) {
 			return rew_a2_k[s][s_prime];
 		}
-		
+
 		else if(a.equals("a3")) {
 			return rew_a3[s][s_prime];
 		}
 		else 
 			return 0;
 	}
-	
+
 	//map specific states to values <state, value>
 	HashMap<Integer, Double> value = new HashMap<Integer, Double>();
-	
+
 	//call this function before beginning to quality checking
-	public void initValue(HashMap<Integer, Integer> val) {
-		val.put(0, 10);
-		val.put(1, 10);
-		val.put(2, 10);
-		val.put(3, 10);
+	public void initValue(HashMap<Integer, Double> value2) {
+		value2.put(0, 10.0);
+		value2.put(1, 10.0);
+		value2.put(2, 10.0);
+		value2.put(3, 10.0);
 	}
 
 	public String value(int s) {
@@ -389,22 +389,35 @@ public class ManifestDestinyPlayer extends Player {
 			max = "a3";
 			currMax = quality(s, "a3");
 		}
-		
+
 		value.put(s, currMax); //replace value with the update max for given state
-		
-		return max;
+
+		return max; //returns maximum state associated with new current maximum
 	}
 
 	public double quality(int s, String a) {
 
 		double q = 0;
-		
+
 		for(int sp = 0; sp < 4; sp ++) {				
 			q += probability(s, a, sp) * (reward(s, a, sp) + gamma*value.get(sp)); //calculate the Q based on the weight of the rewards and values
 		}
 		return q;
 	}
 
-	
-	
+	String []actions = {"a1", "a2", "a3"};
+
+	public void MarkovDecisionProcess() {
+		this.initValue(value);
+
+		for (int i = 0; i < 50; i++) {
+			for (int state = 0; state < 4; state++)
+				for (String action : actions) {
+					quality(state, action);
+					value(state);
+				}
+		}
+	}
+
+
 }
