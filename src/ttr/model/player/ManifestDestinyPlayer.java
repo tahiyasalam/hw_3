@@ -308,6 +308,20 @@ public class ManifestDestinyPlayer extends Player {
 			}
 		}
 	
+		//add in destination ticket selection
+		double prob = Math.random(); 
+		
+		if(costOfTickets < this.getNumTrainPieces()-15 && prob < .1){
+			//do we still have a lot of trains
+			
+			//do we have a lot of cards in our deck that we could use???? O.o
+			
+			//do we have enough train pieces to finish our routes???? O__o
+			super.drawDestinationTickets();
+		}
+		
+		
+		
  		String action = pi.get(s);
 		if (action.equals("a1")) { //policy says to claim route
 			for(int i = 0; i < allRoutes.size(); i++) {

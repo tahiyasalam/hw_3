@@ -91,6 +91,17 @@ public class ThomasTheTankEngineDos extends Player {
 		}
 		
 		//Decide whether we will draw more destination cards
+		//Decision will be a function of train pieces left and number of routes claimed
+		//go through all routes in the game and count the number with null pointer to an owner
+//		ArrayList<Route> routesInGame = Routes.getInstance().getAllRoutes();
+//		int unclaimed = 0;
+//		for(Route r: routesInGame){
+//			if(r.getOwner()==null){
+//				unclaimed ++;
+//			}
+//		}
+//		int totalRoutes = routesInGame.size();
+		
 		if(costOfTickets < this.getNumTrainPieces()-15){
 			//do we still have a lot of trains
 			
