@@ -21,38 +21,11 @@ public class ThomasTheTankEngine extends Player {
 		super("ThomasTheTankEngine");
 	}
 
-	//	@Override
-	//	public void makeMove() {
-	//		// TODO Auto-generated method stub
-	//		//use dijkstras on both destination cards
-	//		//tabulate colors needed
-	//		//pick colors until card values are fulfilled
-	//		//when card value met, 
-	//		//check for critical points
-	//		//manhattan distance + longest piece
-	//		
-	//	}
-
-
-
-
-
 	/**
 	 * MUST override the makeMove() method and implement it.
 	 * */
 	@Override
-	public void makeMove(){
-
-		//		/* Always draw train cards (0 means we are drawing from the pile, not from the face-up cards) */
-		//		super.drawTrainCard(0);
-		//		
-		//		/* This call would allow player to draw destination tickets*/
-		//		super.drawDestinationTickets();
-		//		
-		//		/* Something like this will allow an AI to attempt to buy a route on the board. The first param is the route they wish */
-		//		/* ...to buy, the second param is the card color they wish to pay for the route with (some routes have options here) */
-		//		super.claimRoute(new Route(Destination.Atlanta,  Destination.Miami, 6, TrainCardColor.blue), TrainCardColor.blue);
-		//		
+	public void makeMove(){	
 		ArrayList<DestinationTicket> destTickets = this.getDestinationTickets();
 		ArrayList<Route> allRoutes = new ArrayList<Route>();
 		
@@ -74,9 +47,6 @@ public class ThomasTheTankEngine extends Player {
 			finishedARoute = false;
 			super.drawDestinationTickets();
 		}
-		
-		
-		
 		
 		//inserts all of the routes from destination tickets into allRoutes
 		for(int i = 0; i < destTickets.size(); i++) {
@@ -111,7 +81,6 @@ public class ThomasTheTankEngine extends Player {
 			}
 		}
 		
-
 		int newSize = this.getDestinationTickets().size();
 		if(newSize != initialSize){
 			this.finishedARoute = true;
@@ -120,7 +89,6 @@ public class ThomasTheTankEngine extends Player {
 		//always pick rainbow card if available
 		if(!claimed) {
 			for (int s = 0; s < getFaceUpCards().size(); s++ ) {
-				//System.out.println(getFaceUpCards().get(s).getColor().toString());
 				if (getFaceUpCards().get(s).getColor().toString().equals("rainbow")) {
 					super.drawTrainCard(s+1);
 					claimed = true;
@@ -165,9 +133,6 @@ public class ThomasTheTankEngine extends Player {
 		return criticalPoints;
 	}
 
-
-
-
 	//testing dijkstra's
 	public void itinerary() {
 		for (DestinationTicket ticket : this.getDestinationTickets()){			
@@ -176,10 +141,6 @@ public class ThomasTheTankEngine extends Player {
 
 
 	}
-
-
-
-
 
 	public ArrayList<Destination> shortestPathcost(Destination from, Destination to){
 
